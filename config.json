@@ -1,0 +1,23 @@
+{
+  "llm": {
+    "endpoint": "http://localhost:8000/v1/chat/completions",
+    "model": "smollm-tiny",
+    "temperature": 0.0,
+    "max_tokens": 500,
+    "timeout": 60,
+    "max_retries": 3,
+    "max_concurrent_requests": 5
+  },
+  "metrics": {
+    "enabled": ["exact_match", "char_f1", "entity_labeling_acc", "pearson", "spearman"]
+  },
+  "output": {
+    "output_dir": "./results",
+    "save_predictions": true,
+    "save_metrics": true,
+    "result_file_name": "eval_results.json",
+    "prediction_file_name": "predictions.json"
+  },
+  "dataset_path": "./dataset.json",
+  "verbose": true
+}

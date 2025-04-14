@@ -1,0 +1,29 @@
+{
+  "instruction": "質問を入力とし、回答を出力してください。回答の他には何も含めないことを厳守してください。",
+  "output_length": 15,
+  "metrics": ["exact_match", "char_f1"],
+  "few_shots": [
+    {
+      "input": "質問：日本の首都は？",
+      "output": "東京"
+    },
+    {
+      "input": "質問：富士山の標高は？",
+      "output": "3776メートル"
+    }
+  ],
+  "samples": [
+    {
+      "input": "質問：日本の四季は何がありますか？",
+      "output": "春夏秋冬"
+    },
+    {
+      "input": "質問：日本の国技は？",
+      "output": "相撲"
+    },
+    {
+      "input": "質問：「こんにちは」は英語で？",
+      "output": "Hello"
+    }
+  ]
+}
