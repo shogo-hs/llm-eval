@@ -1,6 +1,6 @@
 # LLM日本語評価スクリプト
 
-このリポジトリは、LLM（大規模言語モデル）の日本語テキスト生成能力を評価するためのツールセットです。特にlitellmを使用して推論を行い、さまざまな評価指標に基づいてモデルのパフォーマンスを評価します。
+このリポジトリは、LLM（大規模言語モデル）の日本語テキスト生成能力を評価するためのツールセットです。特にlitellmを使用して推論を行い、さまざまな評価指標に基づいてモデルのパフォーマンスを評価します。LLM Leaderboard（Nejumi Leaderboard 3）で使用されているサンプリング方法にも対応しています。
 
 ## 特徴
 
@@ -9,6 +9,7 @@
 - **並列処理**: 非同期処理による並列評価をサポート
 - **柔軟な設定**: JSON設定ファイルを通じて評価プロセスを細かく制御可能
 - **結果の保存と表示**: 評価結果と生成テキストの保存、結果サマリーの表示機能
+- **LLM Leaderboardサンプリング**: Nejumi Leaderboard 3で使用されているサンプリング方法を再現し、データセットサイズを適切に調整
 
 ## インストール方法
 
@@ -19,7 +20,7 @@ pip install -r requirements.txt
 
 ## 使い方
 
-### 基本的な使い方
+### 基本的な評価
 
 1. 設定ファイルを準備（`config.json`）:
 ```json
@@ -84,6 +85,37 @@ python evaluate.py --config config.json --dataset dataset1.json dataset2.json
 ```bash
 python evaluate.py --config config.json --dataset-dir ./datasets
 ```
+
+### LLM Leaderboardサンプリングの使用
+
+LLM Leaderboardで使用されているサンプリング方法を利用する:
+```bash
+python evaluate.py --config config.json --dataset dataset.json --sampling --task-name jsquad
+```
+
+詳細なサンプリングオプション:
+```bash
+# JSQuADのテストセットから100サンプルを使用
+python evaluate.py --config config.json --dataset jsquad.json --sampling --task-name jsquad
+
+# wiki_nerのテストセットから20サンプルを使用
+python evaluate.py --config config.json --dataset wiki_ner.json --sampling --task-name wiki_ner
+
+# jmmluのテストセットから5サンプル、3-shotで評価
+python evaluate.py --config config.json --dataset jmmlu.json --sampling --task-name jmmlu --few-shots 3
+```
+
+サンプリング機能の詳細については、[SAMPLING.md](./SAMPLING.md)を参照してください。
+
+### LLM Leaderboard完全再現機能の使用
+
+LLM Leaderboardの評価方法を完全に再現（拡張評価指標などを含む）するには：
+
+```bash
+python evaluate_leaderboard.py --config config.json --dataset dataset.json --task-name jsquad
+```
+
+詳細は[LEADERBOARD.md](./LEADERBOARD.md)を参照してください。
 
 ## 詳細設定
 

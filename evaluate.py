@@ -16,7 +16,7 @@ import asyncio
 from typing import Dict, List, Optional, Any
 from glob import glob
 
-from llm_jp_evaluator.data.loader import DataLoader, load_multiple_datasets
+from llm_jp_evaluator.data.loader import DataLoader, load_multiple_datasets, load_dataset_with_sampling
 from llm_jp_evaluator.inference.llm_client import LLMClient
 from llm_jp_evaluator.metrics.evaluator import Evaluator
 from llm_jp_evaluator.utils.result_processor import ResultProcessor
@@ -53,6 +53,33 @@ def parse_args():
         "--verbose", 
         action="store_true", 
         help="Enable verbose output"
+    )
+    parser.add_argument(
+        "--sampling",
+        action="store_true",
+        help="Use LLM-leaderboard sampling rules"
+    )
+    parser.add_argument(
+        "--task-name", 
+        type=str, 
+        help="Task name for sampling (e.g., jsquad, wiki_ner)"
+    )
+    parser.add_argument(
+        "--subset", 
+        type=str, 
+        choices=["test", "dev"],
+        default="test",
+        help="Dataset subset (test or dev)"
+    )
+    parser.add_argument(
+        "--test-mode", 
+        action="store_true", 
+        help="Test mode (use only 1 sample)"
+    )
+    parser.add_argument(
+        "--few-shots", 
+        type=int, 
+        help="Number of few-shot examples"
     )
     return parser.parse_args()
 
@@ -145,9 +172,37 @@ def main():
     
     # データセットを読み込む
     try:
-        datasets = load_multiple_datasets(dataset_paths)
+        if args.sampling:
+            # LLM Leaderboardのサンプリングルールを使用
+            if not args.task_name:
+                print("Task name is required for sampling (--task-name)")
+                sys.exit(1)
+                
+            datasets = {}
+            for path in dataset_paths:
+                name = os.path.basename(path).split(".")[0]
+                sampled_dataset = load_dataset_with_sampling(
+                    dataset_path=path,
+                    task_name=args.task_name,
+                    subset=args.subset,
+                    test_mode=args.test_mode,
+                    num_few_shots=args.few_shots
+                )
+                datasets[name] = sampled_dataset
+                
+            if config.verbose:
+                print(f"Using LLM Leaderboard sampling rules:")
+                print(f"  Task name: {args.task_name}")
+                print(f"  Subset: {args.subset}")
+                print(f"  Test mode: {args.test_mode}")
+                print(f"  Few-shots: {args.few_shots if args.few_shots is not None else 'default'}")
+        else:
+            # 通常のデータセット読み込み
+            datasets = load_multiple_datasets(dataset_paths)
     except Exception as e:
         print(f"Error loading datasets: {str(e)}")
+        import traceback
+        traceback.print_exc()
         sys.exit(1)
     
     if not datasets:

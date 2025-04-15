@@ -3,6 +3,7 @@
 """
 import json
 import os
+from pathlib import Path
 from typing import Dict, List, Optional, Any, Union, Tuple
 
 import jsonschema
@@ -104,3 +105,34 @@ def load_multiple_datasets(dataset_paths: List[str]) -> Dict[str, Dataset]:
         loader = DataLoader(path)
         datasets[name] = loader.load()
     return datasets
+
+
+def load_dataset_with_sampling(
+    dataset_path: str,
+    task_name: str,
+    subset: str = "test",
+    test_mode: bool = False,
+    num_few_shots: Optional[int] = None
+) -> Dataset:
+    """
+    LLM Leaderboardのサンプリングルールに基づいてデータセットを読み込みます
+    
+    Args:
+        dataset_path: データセットファイルのパス
+        task_name: タスク名（例: "jsquad", "jmmlu"）
+        subset: データセットの部分集合（"test" または "dev"）
+        test_mode: テストモードかどうか（1サンプルのみを使用）
+        num_few_shots: few-shotの数（Noneの場合は元のfew-shotsを使用）
+        
+    Returns:
+        Dataset: サンプリングされたデータセット
+    """
+    from llm_jp_evaluator.data.sampler import sample_dataset_with_leaderboard_rules
+    
+    return sample_dataset_with_leaderboard_rules(
+        dataset_path=dataset_path,
+        task_name=task_name,
+        subset=subset,
+        test_mode=test_mode,
+        num_few_shots=num_few_shots
+    )
